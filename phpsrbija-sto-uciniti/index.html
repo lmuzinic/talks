@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Što učiniti kada klijent poželi servirati 110 milijuna geotargetiranih bannera s VPS-a?</title>
+
+    <meta name="description"
+          content="Saznajte kako kombinacijom soft skillsa i developerskih trikova imati zadovoljnog klijenta i rješenje koje može podnjeti tisuće requestova u minuti.">
+    <meta name="author" content="Luka Mužinić">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+
+        <section>
+            <h2>Što učiniti</h2>
+            <h3>kada klijent poželi servirati 110 milijuna geotargetiranih bannera s VPS-a?</h3>
+        </section>
+        <section>
+            <h3>Luka Mužinić</h3>
+            <p>@lmuzinic<br><br>@trikoder<br><br>@netakademija</p>
+        </section>
+        <section>
+            <h3>wogibtswas.at</h3>
+            <img src="pictures/offers.png">
+        </section>
+
+        <section>
+            <h2>Klijent:</h2>
+            <p class="fragment">
+                <q>"znate one widgete što ste davno napravili,<br>mi bi to htjeli pustiti u produkciju"</q>
+            </p>
+            <p class="fragment">
+                ...
+            </p>
+            <p class="fragment">
+                <q>"pa nemamo još točne brojke, ali otprilike<br> 110 milijuna prikaza mjesečno"</q>
+            </p>
+            <p class="fragment">
+                ...
+            </p>
+            <p class="fragment">
+                <q>"halo, HALO?"</q>
+            </p>
+        </section>
+
+        <section>
+            <h2>Developer:</h2>
+            <p class="fragment">
+                ...
+            </p>
+            <p class="fragment">
+                <q>"odlično, bit će mi drago vidjeti ih u živo.<br>Budući da nikada nismo pričali o brojkama, o kojem
+                    broju prikaza govorimo?"</q>
+            </p>
+            <p class="fragment">
+                ...
+            </p>
+            <p class="fragment">
+                <q>"to su poprilično impresivne brojke,<br> predlažem da prvo isprobamo da li je moguće bez ulaganja u
+                    dodatni hardware"</q>
+            </p>
+            <p class="fragment">
+                ...
+            </p>
+        </section>
+
+        <section>
+            <h3>Što je to uopće widget?</h3>
+            <iframe src="http://www.wogibtswas.at/widget/78f76f063978453333fdee1915e2b00b" width="370" height="170"
+                    scrolling="no" frameborder="0"></iframe>
+        </section>
+
+
+        <section>
+            <h2>Stress test 1/2</h2>
+
+            <p>
+                Idemo vidjeti koliko requestova u sekundi trenutno rješenje može podnjeti? Cilj: ~45 req/s
+            </p>
+            <br>
+
+            <h1 class="fragment">
+                7
+            </h1>
+            <br>
+
+            <p class="fragment">
+                #fail
+            </p>
+        </section>
+
+        <section>
+            <h2>Cache 101</h2>
+
+            <p class="fragment">optimizacija koda</p>
+
+            <h3 class="fragment">8</h3>
+
+            <p class="fragment">keširaj DB upite</p>
+
+            <h3 class="fragment">9</h3>
+
+            <p class="fragment">keširaj Sphinx upite</p>
+
+            <h3 class="fragment">12</h3>
+            <br>
+
+            <p class="fragment"><q>ponekada je pametno da requestovi uopće ne dođu do aplikacije</q><br> - Tomicius
+                Rasimus</p>
+        </section>
+
+        <section>
+            <h2>Nginx to the rescue</h2>
+
+            <p>http://nginx.org/en/docs/http/ngx_http_memcached_module.html</p>
+
+            <p>http://wiki.nginx.org/HttpRedis</p>
+        </section>
+
+        <section>
+            <h2>Primjer konfiguracije 1/2</h2>
+                    <pre><code data-trim contenteditable>
+# widget nginx + memcached
+location /widget/ {
+    set $memcached_key $geoip_city$uri;
+
+    if ($arg_company != '') {
+        set $memcached_key $memcached_key?company=$arg_company
+    }
+
+    default_type text/html;
+    memcached_pass 127.0.0.1:11211;
+    error_page 404 = @fallback;
+    expires +7200;
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Primjer konfiguracije 2/2</h2>
+                    <pre><code data-trim contenteditable>
+location @fallback {
+    proxy_pass http://apache.application.server:8081;
+    proxy_buffering off;
+    proxy_redirect off;
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Stress test 2/2</h2>
+
+            <p>
+                Idemo vidjeti koliko requestova u sekundi novo rješenje može podnjeti? Cilj: ~45 req/s
+            </p>
+            <br>
+
+            <h2 class="fragment">
+                ~1500 req/s
+            </h2>
+            <br>
+
+            <p class="fragment">
+                so much #win
+            </p>
+        </section>
+
+        <section>
+            <h2>Razine cachea</h2>
+
+            <p class="fragment" style="text-decoration: line-through;">4. po IP adresi (cca. jako puno)</p>
+
+            <p class="fragment">3. po gradu (cca. 1145 kom)</p>
+
+            <p class="fragment">2. po regijama (9 kom)</p>
+
+            <p class="fragment" style="text-decoration: line-through;">1. cijela Austrija (1 kom)</p>
+        </section>
+
+        <section>
+            <h2>Konačno rješenje</h2>
+            <p>VPS, 4 core, 8 GB</p>
+            <p>load zanemariv</p>
+            <p>36m req/mj</p>
+            <p>u peakovima 50-60 req/s</p>
+        </section>
+
+        <section>
+            <h2>Alternative</h2>
+            <p>Varnish, raznorazni web acceleratori, podrška za ESI...</p>
+        </section>
+
+        <section>
+            <h2>Kako motivirati klijenta?</h2>
+
+            <p class="fragment"><q>želim ljude koji dolaze s rješenjima, a ne problemima</q></p>
+
+            <p class="fragment">iskoristite trokut cjenkanja</p>
+
+            <p class="fragment">novac, vrijeme, opseg posla</p>
+
+            <p class="fragment">kvaliteta</p>
+        </section>
+
+        <section>
+            <h2>Niste sami!</h2>
+            <p class="fragment">komunicirajte s kolegama, sistem administratorima, hosterima, klijentima, šefovima</p>
+        </section>
+
+        <section>
+            <h2>Don't bullshit!</h2>
+        </section>
+
+        <section>
+            <h2>Errors, boo-boos, tips and tricks</h2>
+
+            <p class="fragment">cache stampedo</p>
+
+            <p class="fragment">zagrijavanje cachea</p>
+
+            <p class="fragment">održati memcache na životu</p>
+
+            <p class="fragment">GA analytics</p>
+        </section>
+
+        <section>
+            <section>
+                <h2>Hvala!</h2>
+            </section>
+            <section>
+                <h2>Pitanja?</h2>
+            </section>
+        </section>
+
+        <section>
+            <h2>Nešto za ponjeti kući</h2>
+
+            <p class="fragment">jeste li ikada vidjeli u teretani tipa koji vježba samo bicepse?</p>
+
+            <p class="fragment">biti najbolji developer nije dovoljno</p>
+
+            <p class="fragment">ne budite taj tip!</p>
+        </section>
+
+    </div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+    // Full list of configuration options available here:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+            { src: 'lib/js/classList.js', condition: function () {
+                return !document.body.classList;
+            } },
+            { src: 'plugin/markdown/marked.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/markdown/markdown.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                hljs.initHighlightingOnLoad();
+            } },
+            { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } },
+            { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } }
+        ]
+    });
+
+</script>
+
+</body>
+</html>
