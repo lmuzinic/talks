@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Monitoring web applications</title>
+
+    <meta name="description" content="Find out what is happening with web application before everyone else">
+    <meta name="author" content="Luka Mužinić">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+
+    <section>
+        <h3>Monitoring web applications</h3>
+
+        <p>Find out what is happening with web application before everyone else</p>
+    </section>
+    <section>
+        <h3>Luka Mužinić</h3>
+
+        <p>@lmuzinic<br><br>@trikoder<br><br>@netakademija</p>
+    </section>
+
+    <section>
+        <h3>Background</h3>
+
+        <p class="fragment">
+            <a href="https://mantis.trikoder.net/view.php?id=20342">0020342</a>: Portal speed optimization
+        </p>
+
+        <p class="fragment">
+            <q>"I don't want to optimize anything that I don't have control of"</q>
+        </p>
+    </section>
+
+    <section>
+        <h3>Servis za monitoring</h3>
+
+        <p><span class="fragment">StatsD</span><span class="fragment"> + Carbon</span><span
+                class="fragment"> + Graphite</span><span class="fragment"> + Whisper</span><br><br><span
+                class="fragment"><img src="http://i.imgur.com/8eZFpQI.gif"></span></p>
+    </section>
+
+    <section>
+        <h3>StatsD</h3>
+        <p>network daemon</p>
+        <p>UDP > TCP</p>
+        <p><strong>aggregates</strong> and forwards</p>
+        <p>port 8125</p>
+    </section>
+
+    <section>
+        <h3>Carbon</h3>
+        <p>backend storage application</p>
+        <p>port 2003</p>
+        <p>CLI process</p>
+        <p>accepts formatted data and stores them on disk</p>
+        <p>&lt;key&gt; &lt;numeric value&gt; &lt;timestamp&gt;</p>
+    </section>
+
+    <section>
+        <h3>Whisper</h3>
+        <p>fixed sized database</p>
+        <p>RRD</p>
+        <p>storage numeric, time series data</p>
+    </section>
+
+    <section>
+        <h3>Graphite</h3>
+        <p>real time graphing system</p>
+        <p>frontend for previous two components</p>
+    </section>
+
+    <section>
+        <h3>Send everything to StatsD</h3>
+
+        <p>* almost</p>
+    </section>
+
+    <section>
+        <h3>StatsD key concepts</h3>
+
+        <p class="fragment"><strong>buckets</strong> - namespaced place to store information</p>
+
+        <p class="fragment"><strong>values</strong> - any value as long as it is (int)</p>
+
+        <p class="fragment"><strong>flush</strong> - StatsD aggregates, remember?</p>
+    </section>
+
+    <section>
+        <h3>StatsD metrics: Overview 1/4</h3>
+
+        <p class="fragment"><strong>counters</strong> - inc/dec value inside flush interval</p>
+
+        <p class="fragment"><strong>timers</strong> - collects, aggregates and calculates before flush</p>
+
+        <p class="fragment"><strong>gauges</strong> - simple number store</p>
+    </section>
+
+    <section>
+        <h3>StatsD metrics: Counters 2/4</h3>
+
+        <p class="fragment">can be incremented or decremented multiple times before it gets flushed to Carbon</p>
+    </section>
+
+    <section>
+        <h3>StatsD metrics: Timers 3/4</h3>
+
+        <p class="fragment">collection of metrics</p>
+
+        <p class="fragment">upper, lower, count, sum, mean</p>
+
+        <p class="fragment">450, 120, 553, 994, 334, 844, 675, 496</p>
+
+        <p class="fragment">upper=994, lower=120, count=8, sum=4466, mean=558.25</p>
+    </section>
+
+    <section>
+        <h3>StatsD metrics: Gauge 4/4</h3>
+
+        <p class="fragment">holds a value that will be flushed to Carbon</p>
+
+        <p class="fragment">450, 120, 553, 994, 334, 844, 675, 496</p>
+
+        <p class="fragment">496</p>
+    </section>
+
+    <section>
+        <h3>Storage Schemas</h3>
+        <pre><code data-trim contenteditable>
+[stats]
+pattern = ^wgw\.ctl_homepage\..*
+retentions = 10:2160,60:10080,600:262974</code></pre>
+        <p class="fragment">freq:history, 10 seconds for last 6 hours, 1 minute for last week, 10 minutes for last 5
+        years</p>
+    </section>
+
+    <section>
+        <h3>Let's visualize</h3>
+
+        <p class="fragment">up to now, all was about storing data... time to change!</p>
+
+        <p class="fragment"><img src="pictures/monitoring_example.png"></p>
+    </section>
+
+    <section>
+        <h3>How to send data <br>from application</h3>
+
+        <p class="fragment"><strong>easy</strong> use <a href="https://github.com/godmodelabs/php-statsd-client">https://github.com/godmodelabs/php-statsd-client</a></p>
+
+        <p class="fragment">and wrap it</p>
+    </section>
+
+    <section>
+        <h3>Rendering time</h3>
+    </section>
+
+    <section>
+        <pre><code data-trim contenteditable>
+abstract class Monitor extends Client implements SplObserver
+{
+protected $pathComponents = array();
+
+public function __construct()
+{
+    parent::__construct(fw3k2_config::get('STATSD_HOST'), fw3k2_config::get('STATSD_PORT'));
+
+    $this->addToPath(fw3k2_config::get('FW3K2_APP_ID'));
+    if (fw3k2_config::get('FW3K2_APP_MODE') == FW3K2_APP_MODE_DEVELOPMENT) {
+        $this->addToPath('testing');
+    }
+}
+
+abstract public function update(SplSubject $subject);
+
+...</code></pre>
+        <p><a href="https://gitlab.trikoder.net/wogibtswas/wogibtswas-at/blob/master/application/modules/Monitor/Monitor.class.php">Monitor/Monitor.class.php</a> </p>
+    </section>
+
+    <section>
+        <pre><code data-trim contenteditable>
+class RenderingTimeMonitor extends Monitor
+{
+    public function update(SplSubject $subject)
+    {
+        if (in_array($subject->name, $this->allowedNames)) {
+            $this->addToPath('render_time');
+            $this->addToPath($subject->name);
+
+            $this->timingPath();
+        }
+    }
+}</code></pre>
+        <p><a href="https://gitlab.trikoder.net/wogibtswas/wogibtswas-at/blob/master/application/modules/Monitor/RenderingTimeMonitor.class.php">Monitor/RenderingTimeMonitor.class.php</a> </p>
+    </section>
+
+    <section>
+        <pre><code data-trim contenteditable>
+class WgwFrontController implements SplSubject
+{
+    private $observers = array();
+
+    // controller to use
+    $str_controller = !is_null($obj_request->ctl) ? $obj_request->ctl : APP_DEFAULT_CTL;
+    $this->name = $str_controller;
+
+    public function attach(SplObserver $observer)
+    {
+        $id = spl_object_hash($observer);
+        $this->observers[$id] = $observer;
+    }
+
+    public function detach(SplObserver $observer)
+    {
+        $id = spl_object_hash($observer);
+        unset($this->observers[$id]);
+    }
+
+    public function notify()
+    {
+        foreach ($this->observers as $observer) {
+            $observer->update($this);
+        }
+    }
+}</code></pre>
+        <p><a href="https://gitlab.trikoder.net/wogibtswas/wogibtswas-at/blob/master/application/core/WgwFrontController.class.php">WgwFrontController.class.php</a></p>
+    </section>
+
+    <section>
+        <pre><code data-trim contenteditable>
+$frontController = new WgwFrontController();
+$frontController->attach(new RenderingTimeMonitor());
+$frontController->attach(new TroubleshootingMonitor());
+$frontController->attach(new ApiMonitor());
+$frontController->run();
+$frontController->notify();</code></pre>
+        <p><a href="https://gitlab.trikoder.net/wogibtswas/wogibtswas-at/blob/master/public/index.php">public/index.php</a></p>
+    </section>
+
+    <section>
+        <h3>Result</h3>
+        <p class="fragment">app sends rendering time of each monitored controller</p>
+        <p><img src="pictures/angebot_upper_lower.png"></p>
+    </section>
+
+    <section>
+        <h3>Business logic</h3>
+    </section>
+
+    <section>
+        <pre><code data-trim contenteditable>
+class RegisterDisplayMonitor extends Monitor
+{
+    public function update(SplSubject $subject)
+    {
+        $this->addToPath('clicks');
+        $this->addToPath($subject->getDisplayedItem());
+
+        $this->incrementPath();
+    }
+}</code></pre>
+        <p><a href="https://gitlab.trikoder.net/wogibtswas/wogibtswas-at/blob/master/application/modules/Monitor/RegisterDisplayMonitor.class.php">Monitor/RegisterDisplayMonitor.class.php</a></p>
+    </section>
+
+    <section>
+        <pre><code data-trim contenteditable>
+class product_display_counter implements SplSubject
+{
+    private $displayedItem = array();
+
+    public function register_display_for_company()
+    {
+        $this->setDisplayedItem('product_detailview', 'paid');
+        ...
+        $this->setDisplayedItem('product_detailview', 'unpaid');
+    }
+
+    protected function setDisplayedItem($item, $clickType)
+    {
+        $this->displayedItem = array($item, $clickType);
+    }
+
+    public function getDisplayedItem()
+    {
+        return $this->displayedItem;
+    }
+}</code></pre>
+        <p><a href="https://gitlab.trikoder.net/wogibtswas/wogibtswas-at/blob/master/application/class/product_display_counter.class.php">product_display_counter.class.php</a></p>
+    </section>
+
+    <section>
+        <pre><code data-trim contenteditable>
+$obj_counter = new product_display_counter();
+$obj_counter->attach(new RegisterDisplayMonitor());
+...
+$obj_counter->notify();</code></pre>
+        <p><a href="https://gitlab.trikoder.net/wogibtswas/wogibtswas-at/blob/master/public/scripts/register_display.php">public/scripts/register_display.php</a></p>
+    </section>
+
+    <section>
+        <h3>Result</h3>
+        <p class="fragment">app sends increment when each click is triggered +<br>we can check if we broke important business logic</p>
+        <p><img src="pictures/product_clicks.png"></p>
+    </section>
+
+    <section>
+        <h3>Events</h3>
+    </section>
+
+    <section>
+            <h3>update.sh</h3>
+            <pre><code data-trim contenteditable>
+#!/bin/bash
+
+read -p "Checkout tag: " CHECKOUT_TAG
+git fetch && git checkout $CHECKOUT_TAG
+
+...
+
+echo "Notify Graphite..."
+echo "wgw.events.deploys 1 `date +%s`" | nc -w1 37.139.20.120 2003
+            </code></pre>
+            <p>and then use</p>
+            <pre><code data-trim contenteditable>
+alias(drawAsInfinite(wgw.events.deploys), "Deployment")
+            </code></pre>
+        </section>
+
+    <section>
+        <h3>Result</h3>
+        <p class="fragment">to get horizontal lines that mark when you did the deploy</p>
+        <p><img src="pictures/angebot1.png"></p>
+    </section>
+
+
+    <section>
+        <h3>D&D</h3>
+        <p class="fragment">demo & discussion</p>
+        <p class="fragment"><a href="http://37.139.20.120/dashboard/#wgw">All controllers</a></p>
+        <p class="fragment"><a href="http://37.139.20.120/dashboard/#wgw_30">Deploy monitor</a></p>
+    </section>
+
+    </div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+    // Full list of configuration options available here:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        width: 1200,
+        height: 600,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+            { src: 'lib/js/classList.js', condition: function () {
+                return !document.body.classList;
+            } },
+            { src: 'plugin/markdown/marked.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/markdown/markdown.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                hljs.initHighlightingOnLoad();
+            } },
+            { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } },
+            { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } }
+        ]
+    });
+
+</script>
+
+</body>
+</html>
