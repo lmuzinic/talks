@@ -232,13 +232,6 @@ location @fallback {
         </section>
 
         <section>
-            <h2>Additional Memcache feedback 1/2</h2>
-                    <pre><code data-trim contenteditable>
-# add wgwsphinx fallback
-</code></pre>
-        </section>
-
-        <section>
             <h2>Alternative</h2>
             <p>Varnish, raznorazni web acceleratori, podrška za ESI...</p>
         </section>
@@ -271,14 +264,37 @@ location @fallback {
 
             <p class="fragment">zagrijavanje cachea</p>
 
-            <p class="fragment">održati memcache na životu</p>
-
             <p class="fragment">GA analytics</p>
+
+            <p class="fragment">održati memcache na životu</p>
+        </section>
+
+        <section>
+            <h2>Add Memcache fallback</h2>
+                    <pre><code data-trim contenteditable>
+upstream memcached_backed {
+	server 192.168.1.1:11211;
+	server 192.168.1.2:11211;
+}</code></pre>
+                    <pre><code data-trim contenteditable>
+# widget nginx + memcached
+location /widget/ {
+	memcached_pass memcached_backed;
+	memcached_next_upstream error;
+}</code></pre>
         </section>
 
         <section>
             <section>
-                <h2>Hvala!</h2>
+                <h2>Thx!</h2>
+		<p>@tomyz0r, @ivedrna, @msvrtan, @goran_juric and many others</p>
+            </section>
+            <section>
+                <h2>We are hiring!</h2>
+		<p>posao@trikoder.net</p>
+            </section>
+            <section>
+                <h2>Bai!</h2>
             </section>
             <section>
                 <h2>Pitanja?</h2>
@@ -311,6 +327,7 @@ location @fallback {
         progress: true,
         history: true,
         center: true,
+	width:1200,
 
         theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
         transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
