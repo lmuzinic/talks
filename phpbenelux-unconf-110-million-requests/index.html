@@ -41,54 +41,50 @@
         <section>
             <h2>What to do</h2>
             <h3>when a client wants to serve 110 million geotargeted banners from a VPS?</h3>
+            <aside class="notes">
+                rules of the talk - shouting answers<br>
+                who loves talking to the client?<br>
+                hope to change this
+            </aside>
         </section>
         <section>
             <h3>Luka Mužinić</h3>
             <p><a href="http://twitter.com/lmuzinic">@lmuzinic</a><br><br><a href="http://twitter.com/netakademija">@netakademija</a><br><br><a href="http://twitter.com/trikoder">@trikoder</a></p>
+            <aside class="notes">
+                what I do and where<br>
+                how our concept works<br>
+                trikoder teams and web agency
+            </aside>
         </section>
         <section>
             <h3>wogibtswas.at</h3>
             <img src="pictures/offers.png">
+            <aside class="notes">
+                business logic - what are they trying to achieve
+                stack - LAMP + nginx, sphinx
+            </aside>
         </section>
 
         <section>
-            <h2>Klijent:</h2>
+            <h2>Client:</h2>
             <p class="fragment">
-                <q>"znate one widgete što ste davno napravili,<br>mi bi to htjeli pustiti u produkciju"</q>
+                <q>"do you know those widgets that we made long time ago?<br>we'd like tham to go live"</q>
             </p>
             <p class="fragment">
                 ...
             </p>
             <p class="fragment">
-                <q>"pa nemamo još točne brojke, ali otprilike<br> 110 milijuna prikaza mjesečno"</q>
+                <q>"well we don't have exact numbers, but approximately <br> 110 million views per month"</q>
             </p>
             <p class="fragment">
                 ...
             </p>
             <p class="fragment">
-                <q>"halo, HALO?"</q>
+                <q>"hello, HELLO?"</q>
             </p>
-        </section>
+            <aside class="notes">
 
-        <section>
-            <h2>Developer:</h2>
-            <p class="fragment">
-                ...
-            </p>
-            <p class="fragment">
-                <q>"odlično, bit će mi drago vidjeti ih u živo.<br>Budući da nikada nismo pričali o brojkama, o kojem
-                    broju prikaza govorimo?"</q>
-            </p>
-            <p class="fragment">
-                ...
-            </p>
-            <p class="fragment">
-                <q>"to su poprilično impresivne brojke,<br> predlažem da prvo isprobamo da li je moguće bez ulaganja u
-                    dodatni hardware"</q>
-            </p>
-            <p class="fragment">
-                ...
-            </p>
+            </aside>
         </section>
 
         <section>
@@ -96,8 +92,12 @@
             <p>widget == banner</p>
             <iframe src="http://www.wogibtswas.at/widget/78f76f063978453333fdee1915e2b00b" width="370" height="175"
                     scrolling="no" frameborder="0"></iframe>
+            <aside class="notes">
+                what is needed to deliver - request lifecycle?
+                locate user, ask google where its, lat/lng
+                must be fast or users won't click it
+            </aside>
         </section>
-
 
         <section>
             <h2>Stress test 1/2</h2>
@@ -115,6 +115,11 @@
             <p class="fragment">
                 #fail
             </p>
+            <aside class="notes">
+                audience must shout<br>
+                admin stressed out<br>
+                turn to caching
+            </aside>
         </section>
 
         <section>
@@ -135,12 +140,19 @@
 
             <p class="fragment"><q>sometimes it is better that requests don't even reach your application</q><br> - <a href="http://twitter.com/tomyz0r">Tomicius
                 Rasimus</a></p>
+            <aside class="notes">
+                optimization is not ' vs " - indexes, lazy loading
+                sphinx - wall time
+            </aside>
         </section>
 
         <section>
             <h2>The trick</h2>
             <p class="fragment">make your application generate whole page into cache</p>
             <p class="fragment">whole page, &lt;html&gt; to &lt;/html&gt;</p>
+            <aside class="notes">
+                and then what? you still have to fetch it from cache!
+            </aside>
         </section>
 
         <section>
@@ -178,6 +190,9 @@ location @fallback {
     proxy_buffering off;
     proxy_redirect off;
 }</code></pre>
+            <aside class="notes">
+                make your application write to both cache and output
+            </aside>
         </section>
 
         <section>
@@ -196,6 +211,10 @@ location @fallback {
             <p class="fragment">
                 wow. very fast. so much win.
             </p>
+            <aside class="notes">
+                we were flabbergasted<br>
+                load on 45 req/s is not noticeable
+            </aside>
         </section>
 
         <section>
@@ -216,6 +235,12 @@ location @fallback {
             <p class="fragment">
                 :( values too big to have described effect
             </p>
+            <aside class="notes">
+                keepalive - do not close connection, keep it open<br>
+                900 -> 1650<br>
+                we were curious but our values were to big ~ 10 kb<br>
+                at this time we had a working thing, runs well, we just need to figure out how to organize cache
+            </aside>
         </section>
 
         <section>
@@ -229,10 +254,16 @@ location @fallback {
             <p class="fragment">2. by region (9)</p>
 
             <p class="fragment" style="text-decoration: line-through;">1. whole Austria</p>
+            <aside class="notes">
+                this was our proposal
+            </aside>
         </section>
 
         <section>
             <h2>Time to talk to client</h2>
+            <aside class="notes">
+                is somebody nervous? don't worry, here are some tricks ;-)
+            </aside>
         </section>
 
         <section>
@@ -252,6 +283,10 @@ location @fallback {
             <p>36 million req/month</p>
             <p>peaks 50-60 req/second</p>
             <p>additional memcache fallback</p>
+            <aside class="notes">
+                numbers are less than originally planned<br>
+                peaks are OK
+            </aside>
         </section>
 
         <section>
@@ -267,6 +302,11 @@ location /widget/ {
     memcached_pass memcached_backed;
     memcached_next_upstream error;
 }</code></pre>
+            <aside class="notes">
+                two are better than one<br>
+                memcache pass param - before single IP, after array above<br>
+                next_upstream error - when unable to connect to memcache
+            </aside>
         </section>
 
         <section>
@@ -277,15 +317,44 @@ location /widget/ {
         <section>
             <h2>Caching alternatives</h2>
             <p>Geohash</p>
+            <aside class="notes">
+                for us "by city" worked as we had GeoIP database that resolved to city
+            </aside>
+        </section>
+
+        <section>
+            <section>
+                <h2>Geohashing explained 1/3</h2>
+                <p><img src="pictures/world1.jpg" height="450"></p>
+            </section>
+            <section>
+                <h2>Geohashing explained 2/3</h2>
+                <p><img src="pictures/world2.jpg" height="450"></p>
+            </section>
+            <section>
+                <h2>Geohashing explained 3/3</h2>
+                <p><img src="pictures/world3.png" height="450"></p>
+            </section>
+            <section>
+                <h2>Geohashing explained</h2>
+                <p><a href="http://www.bigdatamodeling.org/2013/01/intuitive-geohash.html">Visualising geohash</a></p>
+            </section>
         </section>
 
         <section>
             <h2>You are not alone!</h2>
             <p class="fragment">comunicate with your colleagues, devops, hosting guys, clients, bosses...</p>
+            <aside class="notes">
+                I couldn't come up with this by myself
+            </aside>
         </section>
 
         <section>
             <h2>Don't bullshit!</h2>
+            <aside class="notes">
+                respect the trust that was given to you<br>
+                don't play CoD
+            </aside>
         </section>
 
         <section>
@@ -296,16 +365,18 @@ location /widget/ {
             <p class="fragment">google analytics</p>
 
             <p class="fragment">keep your cache alive</p>
+            <aside class="notes">
+                cache - willhaben<br>
+                GA - quick and easy for tracking and monitoring<br>
+                GA - don't use main account<br>
+                keepalive - double fallback, monitoring server status
+            </aside>
         </section>
 
         <section>
             <section>
                 <h2>Thx!</h2>
         		<p>@tomyz0r, @ivedrna, @msvrtan, @goran_juric and many others</p>
-            </section>
-            <section>
-                <h2>We are hiring!</h2>
-		        <p>posao@trikoder.net</p>
             </section>
             <section>
                 <h2>kthxbai!</h2>
