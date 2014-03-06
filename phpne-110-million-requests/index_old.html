@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Zg PHP meetup - 2014.01.16 - Specification</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+                <section>
+                    <h3>
+                        <img src="trikoder.png" style="border: none;box-shadow:none;" width="400" />
+                    </h3>
+                    <br />
+                    <h1 style="color:#cc0000;">
+                        Specification
+                    </h1>
+                    <br /><br />
+                    <h3 style="color:#ff6600;text-transform: none;">robert<font style="color:#cc0000;">šorn</font></h3>
+                </section>
+
+				<section>
+					<section>
+                        <h3><font color="#cc0000">Qu'est-ce que c'est?</font></h3>
+                        <ul style="list-style-type: none; text-align: center;">
+                            <br />
+                            <li class="fragment">
+                                <font color="#cc0000">Validator</font>
+                            </li><br />
+                            <li class="fragment">
+                                <font color="#cc0000">Selector</font>
+                            </li><br />
+                            <li class="fragment">
+                                Creation
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h3><font color="#cc0000">Validator</font></h3><br /><br /><br />
+                        <ul style="list-style-type: none; text-align: center;">
+                            <li class="fragment">
+                                <img src="quiz.png" style="border: none;box-shadow:none;" />
+                            </li>
+                        </ul><br /><br /><br />&nbsp;
+                    </section>
+					<section>
+                        <h3><font color="#cc0000">No specification</font></h3>
+                        <ul style="list-style-type: none; text-align: center;">
+                            <li class="fragment">
+                                <img src="big_if.png" style="border: none;box-shadow:none;" />
+                            </li>
+                        </ul>
+                    </section>
+					<section>
+                        <h3><font color="#cc0000">With specification</font></h3>
+                            <pre style="margin: 0px; padding: 0px;"><code contenteditable="" data-trim="" class="php"
+                                    style="float:left; overflow: auto; text-align: left; font-size: 20px; line-height: 24px; margin: 0px; padding: 20px; max-height:600px; display: block;"
+                                >
+class SpecificationQuizAttendies
+{
+    protected $maxAttendies = null;
+
+    /**
+     * @param $maxAttendies 0 means infinity
+     */
+    public function _constructor($maxAttendies)
+    {
+        $this->maxAttendies = $maxAttendies;
+    }
+
+    public function satisfies($quiz)
+    {
+        if ($this->maxAttendies === 0) {
+            return true;
+        } elseif ((int) $quiz->attendiesCount < (int) $this->maxAttendies) {
+            return true;
+        }
+        return false;
+    }
+}
+                                    
+                            </code></pre>
+                    </section>
+					<section>
+                        <h3><font color="#cc0000">With specification</font></h3>
+                            <pre style="margin: 0px; padding: 0px;"><code contenteditable="" data-trim="" class="php"
+                                    style="float:left; overflow: auto; text-align: left; font-size: 20px; line-height: 24px; margin: 0px; padding: 20px; max-height:600px; display: block;"
+                                >
+class SpecificationQuizDuplicates
+{
+    protected $maxDuplicates = null;
+
+    /**
+     * @param $maxAttendies 0 means infinity
+     */
+    public function _constructor($maxDuplicates)
+    {
+        $this->maxDuplicates = $maxDuplicates;
+    }
+
+    public function satisfies($quiz, $user)
+    {
+        if ($this->maxDuplicates === 0) {
+            return true;
+        } elseif ($quiz->getUserCount((int) $user->userId) < (int) $quiz->maxDuplicates) {
+            return true;
+        }
+        return false;
+    }
+}
+                            </code></pre>
+                    </section>
+					<section>
+                        <h3><font color="#cc0000">With specification</font></h3>
+                        How does it look in the controller now?
+                        <ul style="list-style-type: none; text-align: center;">
+                            <li class="fragment">
+                                <img src="small_if.png" style="border: none;box-shadow:none;" />
+                            </li><br />
+                            <li class="fragment">
+                                <img src="small_if2.png" style="border: none;box-shadow:none;" />
+                            </li>
+                        </ul>
+                    </section>
+				</section>
+                <section>
+                    <section>
+                        <h3><font color="#cc0000">Selector</font></h3>
+                            <pre style="margin: 0px; padding: 0px;"><code contenteditable="" data-trim="" class="php"
+                                    style="float:left; overflow: auto; text-align: left; font-size: 20px; line-height: 24px; margin: 0px 0px 0px 150px; padding: 20px; max-height:600px; display: block;"
+                                >
+class AdExpiredSpecification
+{
+    public function satisfies($ad)
+    {
+        if ($ad->expiry_time <= time()) {
+            return true;
+        }
+        return false;
+    }
+
+    public function applyFilter($repository)
+    {
+        $repository->adFilter('expiry_time', time(), '<');
+    }
+}
+                            </code></pre>
+                    </section>
+                </section>
+                <section>
+                    <p>www.martinfowler.com/apsupp/spec.pdf</p><br />
+                    <p>en.wikipedia.org/wiki/Specification_pattern</p><br />
+                    <p>Eric Evans; Domain-Driven Design: Tackling Complexity in the Heart of Software</i>, Addison Wesley 2003</p><br />
+                </section>
+                <section>
+                    <h2>Make it so!</h2><br />
+                    <img src="hoba.png" style="border: none;box-shadow:none;"><br />
+                    <h3 style="text-transform: none;">robert.sorn@<font style="color:#ff6600;">tri</font><font style="color:#cc0000;">koder</font>.net</h3>
+                </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

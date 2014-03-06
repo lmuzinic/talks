@@ -1,0 +1,72 @@
+Buyer
+├── Browse
+│   ├── Component
+│   │   ├── CategoryBrowser
+│   ├── Controller
+│   ├── Form
+│   └── Service
+├── Compare
+│   ├── Component
+│   └── Controller
+├── DetailView
+│   ├── Component
+│   │   ├── AdAction
+│   │   ├── AdDetails
+│   │   ├── AdSummary
+│   │   ├── CompareAdInfoBox
+│   │   ├── DetailIncontentBanner
+│   │   ├── Gallery
+│   │   └── OverseasDetailView
+│   └── Controller
+├── Main
+│   └── Controller
+├── Profile
+│   ├── Component
+│   │   └── UserInfoRenderer
+│   └── Controller
+│       ├── B2C
+│       └── C2C
+├── Search
+│   ├── Component
+│   │   └── MainBox
+│   └── Controller
+│       └── DetailSearch
+├── StaticContent
+│   ├── Contact
+│   ├── Faq
+│   ├── Page
+│   │   ├── Component
+│   │   └── Controller
+│   │       ├── Http
+│   │       └── Https
+│   └── Sitemap
+│       ├── Display
+│       └── Feed
+└── Tags
+Seller
+├── Ad
+│   └── Edit
+│       ├── Component
+│       │   └── CategorySelector
+│       ├── Controller
+│       └── Form
+│           └── AdCategorySelector
+└── Authentication
+    ├── FacebookConnect
+    │   ├── Component
+    │   │   ├── ConnectButton
+    │   │   └── Support
+    │   ├── Controller
+    │   └── FacebookConnector.php
+    ├── Login
+    │   ├── Component
+    │   │   └── LoginBox
+    │   ├── Controller
+    │   └── Form
+    │       ├── ForgottenPassword
+    │       ├── Login
+    │       └── RecoverPassword
+    └── Registration
+        ├── Controller
+        ├── Form
+        └── Service
