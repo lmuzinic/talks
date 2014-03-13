@@ -1,0 +1,125 @@
+/**
+ * Trikoder theme for reveal.js.
+ */
+
+@import "../template/mixins";
+@import "../template/settings";
+
+@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,900,400italic,600italic,900italic&subset=latin,latin-ext);
+@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:400,700&subset=latin,latin-ext);
+
+$mainFont                : 'Source Sans Pro', sans-serif;
+$headingFont             : $mainFont;
+$mainFontSize            : 1em;
+$headingColor            : #b51218;
+$heading1TextShadow      : none;
+$headingTextShadow       : none;
+$selectionBackgroundColor: #b51218;
+$linkColor               : darken(#f68b1f,12%);
+$linkColorHover          : darken($linkColor,15%);
+$mainColor               : lighten(#000,10%);
+$backgroundColor         : darken(#fff,3%);
+$codeFont                : 'Source Code Pro', monospace;
+
+@mixin bodyBackground() {}
+
+@import "../template/theme";
+
+body {
+	font-size:320%;
+}
+
+.reveal {
+
+	&.hide-slide-logo {
+
+		&:after {
+			opacity:0;
+		}
+	}
+
+	&:after {
+		content:'';
+		position:absolute; right:0.5em; bottom:0;
+		background:url(../../lib/images/logo_prez.svg) no-repeat 50% 50%;
+		width:2.5em; height:2.5em;
+		transition:0.15s opacity ease-in-out;
+		opacity:1;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		line-height:1.1;
+		margin-bottom:0.35em;
+	}
+
+	h1,
+	h2 {
+		font-weight:900;
+	}
+
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-weight:600;
+	}
+
+	h1,
+	h2,
+	h3 {
+		letter-spacing:-0.03em;
+	}
+
+	h1 {
+		font-size:195%;
+	}
+
+	h2 {
+		font-size:175%;
+	}
+
+	h3 {
+		font-size:135%;
+	}
+
+	ul {
+
+		li {
+			margin:1em 0;
+		}
+	}
+
+	code {
+		font-family: $codeFont;
+	}
+
+	pre {
+
+		code {
+			padding:0.5em;
+			line-height:1.1;
+		}
+	}
+
+	.img-sans-style {
+		max-width:none; max-height:none;
+		border-width:0;
+		margin:0;
+		background:none;
+		box-shadow:none;
+	}
+
+	.list-sans-bullets {
+		margin:0; padding:0;
+		list-style:none;
+	}
+
+	.logo-main {
+		max-width:80%;
+	}
+}
