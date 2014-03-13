@@ -103,8 +103,7 @@
     <h3>What is widget?</h3>
 
     <p>widget == banner</p>
-    <iframe src="http://www.wogibtswas.at/widget/78f76f063978453333fdee1915e2b00b" width="370" height="175"
-            scrolling="no" frameborder="0"></iframe>
+    <p><img src="pictures/widget.png" width="370"></p>
     <aside class="notes">
         what is needed to deliver - request lifecycle?
         locate user, ask google where its, lat/lng
@@ -188,30 +187,30 @@
 
 <section>
     <h2>Configuration 1/2</h2>
-                    <pre><code data-trim contenteditable>
-                        # widget nginx + memcached
-                        location /widget/ {
-                        set $memcached_key $geoip_city$uri;
+<pre><code data-trim contenteditable>
+# widget nginx + memcached
+location /widget/ {
+    set $memcached_key $geoip_city$uri;
 
-                        if ($arg_company != '') {
-                        set $memcached_key $memcached_key?company=$arg_company
-                        }
+    if ($arg_company != '') {
+        set $memcached_key $memcached_key?company=$arg_company
+    }
 
-                        default_type text/html;
-                        memcached_pass 127.0.0.1:11211;
-                        error_page 404 = @fallback;
-                        expires +7200;
-                        }</code></pre>
+    default_type text/html;
+    memcached_pass 127.0.0.1:11211;
+    error_page 404 = @fallback;
+    expires +7200;
+}</code></pre>
 </section>
 
 <section>
     <h2>Configuration 2/2</h2>
-                    <pre><code data-trim contenteditable>
-                        location @fallback {
-                        proxy_pass http://apache.application.server:8081;
-                        proxy_buffering off;
-                        proxy_redirect off;
-                        }</code></pre>
+<pre><code data-trim contenteditable>
+location @fallback {
+    proxy_pass http://apache.application.server:8081;
+    proxy_buffering off;
+    proxy_redirect off;
+}</code></pre>
     <aside class="notes">
         make your application write to both cache and output
     </aside>
@@ -320,17 +319,17 @@
 
 <section>
     <h2>Add Memcache fallback</h2>
-                    <pre><code data-trim contenteditable>
-                        upstream memcached_backed {
-                        server 192.168.1.1:11211;
-                        server 192.168.1.2:11211;
-                        }</code></pre>
-                    <pre><code data-trim contenteditable>
-                        # widget nginx + memcached
-                        location /widget/ {
-                        memcached_pass memcached_backed;
-                        memcached_next_upstream error;
-                        }</code></pre>
+<pre><code data-trim contenteditable>
+upstream memcached_backed {
+    server 192.168.1.1:11211;
+    server 192.168.1.2:11211;
+}</code></pre>
+<pre><code data-trim contenteditable>
+# widget nginx + memcached
+    location /widget/ {
+    memcached_pass memcached_backed;
+    memcached_next_upstream error;
+}</code></pre>
     <aside class="notes">
         two are better than one<br>
         memcache pass param - before single IP, after array above<br>
@@ -458,7 +457,7 @@
         progress: false,
         history: true,
         center: true,
-        height: 800,
+        height: 700,
         width: 1200,
         transition: 'linear',
         dependencies: [
